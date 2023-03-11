@@ -24,10 +24,10 @@ interface Token {
 
 export const core = {
   deafultAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  async getTokens(address?: string): Promise<Token[]> {
+  async getToken(_address?: string): Promise<Token[]> {
+    const address = _address ?? core.deafultAddress;
     const tokens = await http.get(
-      'https://openapi.debank.com/v1/user/token_list?is_all=false&id=' +
-        (address ?? core.deafultAddress),
+      `https://openapi.debank.com/v1/user/token_list?is_all=false&id=${address}`,
       undefined,
       {
         headers: {
@@ -56,6 +56,25 @@ export const core = {
           amount: formatNumber(e.amount),
           value: formatNumber(e.amount * e.price),
         };
+      });
+  },
+  async getENS(_address?: string) {
+    const address = _address ?? core.deafultAddress;
+    const data = {
+      query: `{ account(id:"${address.toLowerCase()}") { domains { name } } }`,
+    };
+    const response = await http.post(
+      'https://api.thegraph.com/subgraphs/name/ensdomains/ens',
+      data,
+    );
+    const domains = response?.data?.account?.domains ?? [];
+    return domains
+      .map((e) => e.name)
+      .sort((a, b) => {
+        return a.localeCompare(b, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        });
       });
   },
 };
