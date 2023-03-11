@@ -30,11 +30,11 @@ type HttpConfig = {
   signal?: AbortSignal;
 };
 
-const get = async (
+const get = async <T = any>(
   url: string,
   query?: Record<string, any>,
   config?: HttpConfig,
-) => {
+): Promise<T | undefined> => {
   const { timeout = http.timeout, headers = {}, signal } = config ?? {};
   const newUrl = _buildURL(url, query);
   const response = await pTimeout(
@@ -55,12 +55,16 @@ const get = async (
     console.error('🕙 请求超时');
     return undefined;
   });
-  let result = await response?.text();
+  let result: any = await response?.text();
   result = jsonDecode(result) ?? result;
   return result;
 };
 
-const post = async (url: string, data?: any, config?: HttpConfig) => {
+const post = async <T = any>(
+  url: string,
+  data?: any,
+  config?: HttpConfig,
+): Promise<T | undefined> => {
   const { timeout = http.timeout, headers = {}, signal } = config ?? {};
   const body = isObject(data) && !isBlob(data) ? jsonEncode(data) : data;
   const response = await pTimeout(
@@ -82,7 +86,7 @@ const post = async (url: string, data?: any, config?: HttpConfig) => {
     console.error('🕙 请求超时');
     return undefined;
   });
-  let result = await response?.text();
+  let result: any = await response?.text();
   result = jsonDecode(result) ?? result;
   return result;
 };
@@ -96,23 +100,31 @@ export const http = {
   get,
   post,
   proxy: {
-    get(url: string, query?: Record<string, any>, config?: HttpConfig): any {
+    get<T = any>(
+      url: string,
+      query?: Record<string, any>,
+      config?: HttpConfig,
+    ): Promise<T | undefined> {
       const { headers = {}, signal } = config ?? {};
       if (!http.httpProxy) {
-        return get(url, query, config);
+        return get<T>(url, query, config);
       }
-      return get(http.httpProxy, query, {
+      return get<T>(http.httpProxy, query, {
         ...config,
         headers: { ...kBaseHeaders, ...headers, [kProxyKey]: url },
         signal,
       });
     },
-    post(url: string, data?: any, config?: HttpConfig): any {
+    post<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpConfig,
+    ): Promise<T | undefined> {
       const { headers = {}, signal } = config ?? {};
       if (!http.httpProxy) {
-        return post(url, data, config);
+        return post<T>(url, data, config);
       }
-      return post(http.httpProxy, data, {
+      return post<T>(http.httpProxy, data, {
         ...config,
         headers: { ...kBaseHeaders, ...headers, [kProxyKey]: url },
         signal,
