@@ -1,52 +1,10 @@
 import { http } from '@/services/http';
 import { formatNumber } from '@/utils/base';
 import { envs } from '@/utils/env';
-import { isArray } from '@/utils/is';
+import { isArray, isEmpty, isNotEmpty } from '@/utils/is';
 
 import { chainsMap } from './chains';
-
-interface Token {
-  name: string;
-  symbol: string;
-  logo: string;
-  /**
-   * 区块链logo
-   */
-  chain: string;
-  /**
-   * 数量
-   */
-  amount: string;
-  /**
-   * 价值($)
-   */
-  value: string;
-}
-
-interface POAP {
-  name: string;
-  desp: string;
-  image: string;
-  year: string;
-  /**
-   * 活动链接
-   */
-  url: string;
-  country: string;
-  city: string;
-  /**
-   * 活动开始时间
-   */
-  start: string;
-  /**
-   * 活动结束时间
-   */
-  end: string;
-  /**
-   * 发行数量
-   */
-  supply: number;
-}
+import { NFT, POAP, Token } from './types';
 
 export const core = {
   deafultAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
@@ -149,5 +107,80 @@ export const core = {
       });
 
     return poaps;
+  },
+  async getNFT(
+    _address?: string,
+    option?: { callback?: (nfts: NFT[]) => void; max: number },
+  ): Promise<NFT[]> {
+    const { callback, max = 100 } = option ?? {};
+    const address = _address ?? core.deafultAddress;
+
+    const _newIPFSClient = 'https://rss3.mypinata.cloud/ipfs/';
+    const nftSrc = (src: string) => {
+      const ipfsURLs = src.split('/ipfs/');
+      return src.startsWith('ipfs://')
+        ? _newIPFSClient + src.substring(7)
+        : ipfsURLs.length > 1
+        ? _newIPFSClient + ipfsURLs[1]
+        : src;
+    };
+
+    const getNFTs = async (pageToken = '') => {
+      const data = {
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'ankr_getNFTsByOwner',
+        params: {
+          walletAddress: address,
+          pageSize: 50, // 上限50
+          pageToken, // 游标
+          blockchain: [
+            'eth',
+            'bsc',
+            'polygon',
+            'optimism',
+            'fantom',
+            'avalanche',
+            'arbitrum',
+          ],
+        },
+      };
+      const datas = await http.post('https://rpc.ankr.com/multichain/', data);
+      let nfts = datas?.result?.assets ?? [];
+      nfts = nfts.map((e) => {
+        return {
+          name: e.name,
+          image: nftSrc(e.imageUrl),
+          chain: e.blockchain,
+          // details
+          tokenId: e.tokenId,
+          contractAddress: e.contractAddress,
+          contractType: e.contractType,
+          collectionName: e.collectionName,
+        };
+      });
+      nfts = nfts.filter((e) => {
+        return isNotEmpty(e.name) && isNotEmpty(e.image);
+      });
+      const nextPageToken = datas?.result?.nextPageToken;
+      return {
+        nfts,
+        nextPageToken,
+      };
+    };
+
+    let finalNFTs: NFT[] = [];
+    let nextPageToken = '';
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const result = await getNFTs(nextPageToken);
+      finalNFTs = [...finalNFTs, ...result.nfts];
+      callback?.(finalNFTs);
+      nextPageToken = result.nextPageToken;
+      if (finalNFTs.length >= max || isEmpty(result.nextPageToken)) {
+        break;
+      }
+    }
+    return finalNFTs;
   },
 };

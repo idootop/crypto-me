@@ -1,9 +1,4 @@
-interface Chain {
-  id: number;
-  symbol: string;
-  name: string;
-  logo: string;
-}
+import { Chain } from './types';
 
 export const chainsMap: Record<string, Chain> = {
   eth: {
