@@ -1,5 +1,6 @@
 import { http } from '@/services/http';
 import { formatNumber } from '@/utils/base';
+import { envs } from '@/utils/env';
 import { isArray } from '@/utils/is';
 
 import { chainsMap } from './chains';
@@ -20,6 +21,31 @@ interface Token {
    * 价值($)
    */
   value: string;
+}
+
+interface POAP {
+  name: string;
+  desp: string;
+  image: string;
+  year: string;
+  /**
+   * 活动链接
+   */
+  url: string;
+  country: string;
+  city: string;
+  /**
+   * 活动开始时间
+   */
+  start: string;
+  /**
+   * 活动结束时间
+   */
+  end: string;
+  /**
+   * 发行数量
+   */
+  supply: number;
 }
 
 export const core = {
@@ -85,5 +111,43 @@ export const core = {
           sensitivity: 'base',
         });
       });
+  },
+  async getPOAP(_address?: string): Promise<POAP[]> {
+    const address = _address ?? core.deafultAddress;
+    const datas = await http.proxy.get(
+      'https://api.poap.tech/actions/scan/' + address,
+      undefined,
+      {
+        headers: {
+          'x-api-key': envs.kPoapKey,
+        },
+      },
+    );
+    const poaps = (isArray(datas) ? datas : [])
+      .sort((a, b) => {
+        // 按创建时间从新到旧排序
+        return b.created.localeCompare(a.created, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        });
+      })
+      .map((e) => {
+        // 格式化数据
+        return {
+          name: e.event.name,
+          desp: e.event.description,
+          image: e.event.image_url,
+          year: e.event.year,
+          // 详情
+          url: e.event.event_url,
+          country: e.event.country,
+          city: e.event.city,
+          start: e.event.start_date,
+          end: e.event.end_date,
+          supply: e.event.supply,
+        };
+      });
+
+    return poaps;
   },
 };
