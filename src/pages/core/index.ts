@@ -15,18 +15,20 @@ interface Token {
   /**
    * 数量
    */
-  amount: number;
+  amount: string;
   /**
    * 价值($)
    */
-  value: number;
+  value: string;
 }
 
 export const core = {
   deafultAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  async getToken(_address?: string): Promise<Token[]> {
+  async getToken(
+    _address?: string,
+  ): Promise<{ total: string; tokens: Token[] }> {
     const address = _address ?? core.deafultAddress;
-    const tokens = await http.get(
+    const datas = await http.get<any[]>(
       `https://openapi.debank.com/v1/user/token_list?is_all=false&id=${address}`,
       undefined,
       {
@@ -35,11 +37,17 @@ export const core = {
         },
       },
     );
-    return (isArray(tokens) ? tokens : [])
-      .filter((e) => {
-        // 只取价值大于 $1 的币
-        return e.amount * e.price > 1;
-      })
+    // 只取价值大于 $1 的币
+    const coins = (isArray(datas) ? datas! : []).filter((e) => {
+      return e.amount * e.price > 1;
+    });
+    // 总价值
+    const total = formatNumber(
+      coins.reduce((pre, e) => {
+        pre + e.amount * e.price;
+      }, 0),
+    );
+    const tokens = coins
       .sort((a, b) => {
         const value1 = a.amount * a.price;
         const value2 = b.amount * b.price;
@@ -57,6 +65,7 @@ export const core = {
           value: formatNumber(e.amount * e.price),
         };
       });
+    return { total, tokens };
   },
   async getENS(_address?: string) {
     const address = _address ?? core.deafultAddress;
