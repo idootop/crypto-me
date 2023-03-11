@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky install",
-    "update": "pnpm dlx npm-check -u",
+    "update": "npx npm-check -u",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -43,8 +43,8 @@
     "vite-plugin-html": "^3.2.0"
   },
   "lint-staged": {
-    "*.{js,ts,jsx,tsx}": "pnpm dlx eslint --cache --fix",
-    "*.{css,sass,scss}": "pnpm dlx stylelint --cache --fix",
-    "*.{js,ts,jsx,tsx,json,md}": "pnpm dlx prettier --cache --write -c"
+    "*.{js,ts,jsx,tsx}": "npx eslint --cache --fix",
+    "*.{css,sass,scss}": "npx stylelint --cache --fix",
+    "*.{js,ts,jsx,tsx,json,md}": "npx prettier --cache --write -c"
   }
 }
