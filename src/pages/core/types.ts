@@ -50,6 +50,7 @@ export interface POAP {
 
 export interface NFT {
   name: string;
+  desp?: string;
   image: string;
   chain: string;
   // details

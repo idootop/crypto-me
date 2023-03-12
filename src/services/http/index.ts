@@ -94,9 +94,9 @@ const post = async <T = any>(
 export const http = {
   httpProxy: envs.kHttpProxy,
   /**
-   * 默认超时：30s
+   * 默认超时：10s
    */
-  timeout: 30 * 1000,
+  timeout: 10 * 1000,
   get,
   post,
   proxy: {

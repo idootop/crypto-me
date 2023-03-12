@@ -121,13 +121,18 @@ export const core = {
   },
   async getNFT(
     _address?: string,
-    option?: { callback?: (nfts: NFT[]) => void; max: number },
+    option?: {
+      callback?: (nfts: NFT[]) => void;
+      max: number;
+      rainbow: boolean;
+    },
   ): Promise<NFT[]> {
-    const { callback, max = 100 } = option ?? {};
+    const { callback, max = 1000, rainbow = true } = option ?? {};
     const address = _address ?? core.deafultAddress;
 
     const _newIPFSClient = 'https://rss3.mypinata.cloud/ipfs/';
-    const nftSrc = (src: string) => {
+    const nftSrc = (_src: string) => {
+      const src = isEmpty(_src) ? '' : _src;
       const ipfsURLs = src.split('/ipfs/');
       return src.startsWith('ipfs://')
         ? _newIPFSClient + src.substring(7)
@@ -161,6 +166,7 @@ export const core = {
       nfts = nfts.map((e) => {
         return {
           name: e.name,
+          desp: e.description,
           image: nftSrc(e.imageUrl),
           chain: e.blockchain,
           // details
@@ -180,11 +186,42 @@ export const core = {
       };
     };
 
+    const getNFTsRainbow = async (next = 'start') => {
+      const datas = await http.proxy.get('https://rainbow.me/api/assets', {
+        address: address,
+        cursor: next,
+      });
+      let nfts = datas?.results ?? [];
+      nfts = nfts.map((e) => {
+        return {
+          name: e.metadata.name,
+          desp: e.metadata.description,
+          image: nftSrc(e.metadata.image_url),
+          chain: e.asset_contract.chain_identifier,
+          // details
+          tokenId: e.token_id,
+          contractAddress: e.asset_contract.address,
+          contractType: e.asset_contract.contract_standard,
+          collectionName: e.collection.name,
+        };
+      });
+      nfts = nfts.filter((e) => {
+        return isNotEmpty(e.name) && isNotEmpty(e.image);
+      });
+      const nextPageToken = datas?.next;
+      return {
+        nfts,
+        nextPageToken,
+      };
+    };
+
     let finalNFTs: NFT[] = [];
-    let nextPageToken = '';
+    let nextPageToken;
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      const result = await getNFTs(nextPageToken);
+      const result = rainbow
+        ? await getNFTsRainbow(nextPageToken)
+        : await getNFTs(nextPageToken);
       finalNFTs = [...finalNFTs, ...result.nfts];
       callback?.(finalNFTs);
       nextPageToken = result.nextPageToken;
