@@ -9,7 +9,7 @@ export const cache = {
   async init() {
     if (!localStore) {
       localStore = localforage.createInstance({
-        name: 'feiyu',
+        name: 'cache',
         storeName: 'cache',
         driver: localforage.INDEXEDDB,
       });

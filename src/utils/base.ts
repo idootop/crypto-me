@@ -1,3 +1,5 @@
+import { isEmpty } from './is';
+
 export const timestamp = () => new Date().getTime();
 
 export const delay = async (time: number) =>
@@ -34,7 +36,8 @@ export const range = (start: number, end?: number) => {
 };
 
 export const toFixed = (n: number, fractionDigits = 2) => {
-  let s = n.toFixed(fractionDigits);
+  const num = isEmpty(n) ? 0 : n;
+  let s = num.toFixed(fractionDigits);
   while (s[s.length - 1] === '0') {
     s = s.substring(0, s.length - 1);
   }
@@ -44,7 +47,8 @@ export const toFixed = (n: number, fractionDigits = 2) => {
   return s;
 };
 
-export const formatNumber = (num: number, fractionDigits = 2) => {
+export const formatNumber = (n: number, fractionDigits = 2) => {
+  const num = isEmpty(n) ? 0 : n;
   if (num >= 1000000000) {
     return toFixed(num / 1000000000, fractionDigits) + 'B';
   }

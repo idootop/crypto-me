@@ -9,7 +9,7 @@ import { chainsMap } from './chains';
 import { NFT, POAP, Token } from './types';
 
 export const core = {
-  deafultAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  deafultAddress: '0xff8De76ad679E77aE3Dd1c8105b1A34c30990636',
   provider: new JsonRpcProvider('https://rpc.ankr.com/eth'),
   async getToken(
     _address?: string,
@@ -31,7 +31,7 @@ export const core = {
     // 总价值
     const total = formatNumber(
       coins.reduce((pre, e) => {
-        pre + e.amount * e.price;
+        return pre + e.amount * e.price;
       }, 0),
     );
     const tokens = coins
