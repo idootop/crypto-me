@@ -8,10 +8,8 @@ import pTimeout from '@/utils/p-timeout';
 const kProxyKey = 'x-proxy-target';
 const kProxyHeadersKey = 'x-proxy-headers';
 const kBaseHeaders = {
-  [kProxyHeadersKey]: jsonEncode({
-    'user-agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0',
-  })!,
+  'user-agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0',
 };
 
 const _buildURL = (url: string, query?: Record<string, any>) => {
@@ -41,6 +39,7 @@ const get = async <T = any>(
     fetch(newUrl, {
       method: 'GET',
       headers: {
+        ...kBaseHeaders,
         ...headers,
       },
       signal,
@@ -71,6 +70,7 @@ const post = async <T = any>(
     fetch(url, {
       method: 'POST',
       headers: {
+        ...kBaseHeaders,
         ...headers,
       },
       body,
@@ -105,14 +105,16 @@ export const http = {
       query?: Record<string, any>,
       config?: HttpConfig,
     ): Promise<T | undefined> {
-      const { headers = {}, signal } = config ?? {};
+      const { headers = {} } = config ?? {};
       if (!http.httpProxy) {
         return get<T>(url, query, config);
       }
       return get<T>(http.httpProxy, query, {
         ...config,
-        headers: { ...kBaseHeaders, ...headers, [kProxyKey]: url },
-        signal,
+        headers: {
+          [kProxyKey]: url,
+          [kProxyHeadersKey]: jsonEncode({ ...kBaseHeaders, ...headers })!,
+        },
       });
     },
     post<T = any>(
@@ -120,14 +122,16 @@ export const http = {
       data?: any,
       config?: HttpConfig,
     ): Promise<T | undefined> {
-      const { headers = {}, signal } = config ?? {};
+      const { headers = {} } = config ?? {};
       if (!http.httpProxy) {
         return post<T>(url, data, config);
       }
       return post<T>(http.httpProxy, data, {
         ...config,
-        headers: { ...kBaseHeaders, ...headers, [kProxyKey]: url },
-        signal,
+        headers: {
+          [kProxyKey]: url,
+          [kProxyHeadersKey]: jsonEncode({ ...kBaseHeaders, ...headers })!,
+        },
       });
     },
   },
