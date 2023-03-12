@@ -2,7 +2,7 @@ import { core } from '@/pages/core';
 import { printJson } from '@/utils/base';
 
 const main = async () => {
-  const datas = await core.getNFT();
+  const datas = await core.getENS();
   printJson(datas);
 };
 

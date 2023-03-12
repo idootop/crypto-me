@@ -1,3 +1,5 @@
+import { JsonRpcProvider } from 'ethers';
+
 import { http } from '@/services/http';
 import { formatNumber } from '@/utils/base';
 import { envs } from '@/utils/env';
@@ -8,6 +10,7 @@ import { NFT, POAP, Token } from './types';
 
 export const core = {
   deafultAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  provider: new JsonRpcProvider('https://rpc.ankr.com/eth'),
   async getToken(
     _address?: string,
   ): Promise<{ total: string; tokens: Token[] }> {
@@ -52,6 +55,14 @@ export const core = {
     return { total, tokens };
   },
   async getENS(_address?: string) {
+    const address = _address ?? core.deafultAddress;
+    const ens = await core.provider
+      .lookupAddress(address)
+      .catch(() => undefined);
+    const avatar = `https://cdn.stamp.fyi/avatar/eth:${address}?s=256`;
+    return { ens, avatar };
+  },
+  async getENSs(_address?: string) {
     const address = _address ?? core.deafultAddress;
     const data = {
       query: `{ account(id:"${address.toLowerCase()}") { domains { name } } }`,
