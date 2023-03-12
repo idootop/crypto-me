@@ -15,7 +15,7 @@ export const core = {
     _address?: string,
   ): Promise<{ total: string; tokens: Token[] }> {
     const address = _address ?? core.deafultAddress;
-    const datas = await http.get<any[]>(
+    const datas = await http.proxy.get<any[]>(
       `https://openapi.debank.com/v1/user/token_list?is_all=false&id=${address}`,
       undefined,
       {
@@ -123,8 +123,8 @@ export const core = {
     _address?: string,
     option?: {
       callback?: (nfts: NFT[]) => void;
-      max: number;
-      rainbow: boolean;
+      max?: number;
+      rainbow?: boolean;
     },
   ): Promise<NFT[]> {
     const { callback, max = 1000, rainbow = true } = option ?? {};
@@ -177,7 +177,11 @@ export const core = {
         };
       });
       nfts = nfts.filter((e) => {
-        return isNotEmpty(e.name) && isNotEmpty(e.image);
+        return (
+          isNotEmpty(e.name) &&
+          isNotEmpty(e.image) &&
+          (e.contractType.includes('721') || e.contractType.includes('1155'))
+        );
       });
       const nextPageToken = datas?.result?.nextPageToken;
       return {
@@ -206,7 +210,11 @@ export const core = {
         };
       });
       nfts = nfts.filter((e) => {
-        return isNotEmpty(e.name) && isNotEmpty(e.image);
+        return (
+          isNotEmpty(e.name) &&
+          isNotEmpty(e.image) &&
+          (e.contractType.includes('721') || e.contractType.includes('1155'))
+        );
       });
       const nextPageToken = datas?.next;
       return {
