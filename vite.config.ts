@@ -3,8 +3,9 @@ import * as path from 'path';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
-const title = 'Cypto Me';
-const description = 'Your crypto profile';
+const title = 'Cypto ME';
+const description =
+  'Your Web3 profile on one page - ENS, Tokens, POAPs, NFTs and love.';
 
 export default defineConfig({
   plugins: [
