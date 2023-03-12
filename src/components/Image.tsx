@@ -3,7 +3,8 @@ import { forwardRef, useState } from 'react';
 import { isEmpty } from '@/utils/is';
 import { LNode } from '@/utils/types';
 
-import { Box, BoxProps, getBoxProps } from './Box';
+import { BoxProps, getBoxProps } from './Box';
+import { Center } from './Flex';
 
 interface ImageProps extends BoxProps {
   src?: string;
@@ -18,7 +19,8 @@ export const Image = forwardRef((props: ImageProps, ref: any) => {
   const boxProps = getBoxProps({
     ...props,
     extStyle: {
-      display: isLoaded ? 'block' : 'none',
+      ...props.extStyle,
+      display: isLoaded && !isError ? 'block' : 'none',
       objectFit: 'cover',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
@@ -27,15 +29,34 @@ export const Image = forwardRef((props: ImageProps, ref: any) => {
 
   const {
     src,
-    onLoad = <Box {...boxProps} />,
-    onError = <Box {...boxProps} />,
+    onLoad = (
+      <Center
+        {...boxProps}
+        extStyle={{
+          display: 'block',
+        }}
+      />
+    ),
+    onError = (
+      <Center
+        {...boxProps}
+        extStyle={{
+          display: 'block',
+          color: '#666',
+          textAlign: 'center',
+          overflow: 'hidden',
+          background: props.background ?? '#fff',
+        }}
+      >
+        None
+      </Center>
+    ),
   } = props;
 
   return isEmpty(src) ? (
     (onError as any)
   ) : (
     <>
-      {(!isLoaded && !isError) ?? onLoad}
       <img
         ref={ref}
         src={src}
@@ -43,7 +64,8 @@ export const Image = forwardRef((props: ImageProps, ref: any) => {
         onLoad={() => setIsLoaded(true)}
         onError={() => setIsError(true)}
       />
-      {isError ?? onError}
+      {!isLoaded && !isError ? onLoad : undefined}
+      {isError ? onError : undefined}
     </>
   );
 });

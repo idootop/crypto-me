@@ -1,0 +1,39 @@
+.aspect-ratio-1-1 > * {
+  aspect-ratio: 1 / 1;
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-ratio-1-1 {
+    height: 0;
+    padding-bottom: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .aspect-ratio-1-1 > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.nft-list {
+  display: grid;
+  list-style: none;
+}
+
+@media only screen and (max-width: 980px) {
+  .nft-list {
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+@media only screen and (min-width: 980px) {
+  .nft-list {
+    gap: 20px 40px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}

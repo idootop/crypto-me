@@ -7,7 +7,7 @@ import { PositionProps } from './position';
 
 export const Stack = forwardRef((props: BoxProps, ref: any) => {
   // eslint-disable-next-line react/prop-types
-  const children = (props.children ?? []) as any[];
+  const children = ((props.children as any[]) ?? []).filter((e) => e);
   if (!Array.isArray(children) || children.length < 1) return children;
   // 最底部的元素，撑起 Stack 的宽高
   const target = children![0];

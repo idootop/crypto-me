@@ -8,6 +8,7 @@ export const Row = forwardRef((props: BoxProps, ref: any) => {
       ref={ref}
       {...props}
       extStyle={{
+        ...props.extStyle,
         display: 'flex',
         flexDirection: 'row',
         alignItems: props?.style?.alignItems ?? props?.alignItems ?? 'center',
@@ -24,6 +25,7 @@ export const Column = forwardRef((props: BoxProps, ref: any) => {
       ref={ref}
       {...props}
       extStyle={{
+        ...props.extStyle,
         display: 'flex',
         flexDirection: 'column',
         alignItems: props?.style?.alignItems ?? props?.alignItems ?? 'center',
@@ -49,6 +51,7 @@ export const Center = forwardRef((props: BoxProps, ref: any) => {
       ref={ref}
       {...props}
       extStyle={{
+        ...props.extStyle,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
