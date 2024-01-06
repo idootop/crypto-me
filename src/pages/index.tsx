@@ -3,6 +3,7 @@ import './style.css';
 import { Box } from '@/components/Box';
 import { Center, Column, Expand, Row } from '@/components/Flex';
 import { Image } from '@/components/Image';
+import { Spinner } from '@/components/Spinner';
 import { Stack } from '@/components/Stack';
 import { Position } from '@/components/Stack/position';
 import { Text } from '@/components/Text';
@@ -152,18 +153,26 @@ export const App = () => {
       </>
     );
 
+  const loading = tokens.length < 1 && poaps.length < 1 && nfts.length < 1;
+
   return (
     <Center
       width="100%"
       padding={isMobile ? '20px' : '50px'}
       className="hide-scollbar"
     >
-      <Center width="100%" maxWidth="1024px">
-        {$UserAvatar}
-        {$Tokens}
-        {$POAPs}
-        {$NFTs}
-      </Center>
+      {loading ? (
+        <Center height="80vh">
+          <Spinner theme="light" />
+        </Center>
+      ) : (
+        <Center width="100%" maxWidth="1024px">
+          {$UserAvatar}
+          {$Tokens}
+          {$POAPs}
+          {$NFTs}
+        </Center>
+      )}
     </Center>
   );
 };

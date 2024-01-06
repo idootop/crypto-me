@@ -43,7 +43,7 @@ export const core = {
           logo: e.iconUrl,
           chainId: e.chainId,
           chain:
-            chainsMap[chainIdMaps[e.chainId] ?? -1]?.logo ?? chainsMap.eth.logo,
+            chainsMap[chainIdMaps[chain] ?? -1]?.logo ?? chainsMap.eth.logo,
           amount: e.balance,
           value: e.value.marketValue,
         });
@@ -54,7 +54,7 @@ export const core = {
           symbol: e.symbol,
           logo: e.iconUrl,
           chain:
-            chainsMap[chainIdMaps[e.chainId] ?? -1]?.logo ?? chainsMap.eth.logo,
+            chainsMap[chainIdMaps[chain] ?? -1]?.logo ?? chainsMap.eth.logo,
           amount: e.balance,
           value: e.value.marketValue,
         });
