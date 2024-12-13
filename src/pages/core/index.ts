@@ -5,7 +5,6 @@ import { formatNumber } from '@/utils/base';
 import { envs } from '@/utils/env';
 import { isArray, isEmpty, isNotEmpty } from '@/utils/is';
 
-import { chainsMap } from './chains';
 import { NFT, POAP, Token } from './types';
 
 export const core = {
@@ -30,11 +29,6 @@ export const core = {
           },
         },
       );
-      const chainIdMaps = {
-        1: 'eth',
-        56: 'bsc',
-        137: 'matic',
-      };
       if (datas?.nativeBalance) {
         const e = datas?.nativeBalance;
         _tokens.push({
@@ -42,8 +36,7 @@ export const core = {
           symbol: e.symbol,
           logo: e.iconUrl,
           chainId: e.chainId,
-          chain:
-            chainsMap[chainIdMaps[chain] ?? -1]?.logo ?? chainsMap.eth.logo,
+          chain: `https://static.cx.metamask.io/api/v1/tokenIcons/${chain}/0x0000000000000000000000000000000000000000.png`,
           amount: e.balance,
           value: e.value.marketValue,
         });
@@ -53,8 +46,7 @@ export const core = {
           name: e.name,
           symbol: e.symbol,
           logo: e.iconUrl,
-          chain:
-            chainsMap[chainIdMaps[chain] ?? -1]?.logo ?? chainsMap.eth.logo,
+          chain: `https://static.cx.metamask.io/api/v1/tokenIcons/${chain}/0x0000000000000000000000000000000000000000.png`,
           amount: e.balance,
           value: e.value.marketValue,
         });
@@ -179,7 +171,7 @@ export const core = {
     const { callback, max = 1000 } = option ?? {};
     const address = _address ?? core.deafultAddress;
 
-    const _newIPFSClient = 'https://rss3.mypinata.cloud/ipfs/';
+    const _newIPFSClient = 'https://nftstorage.link/ipfs/';
     const nftSrc = (_src: string) => {
       const src = isEmpty(_src) ? '' : _src;
       const ipfsURLs = src.split('/ipfs/');
